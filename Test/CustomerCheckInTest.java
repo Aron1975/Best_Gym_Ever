@@ -25,7 +25,7 @@ class CustomerCheckInTest {
 
     @Test
     void readCustomerFileTest() {
-        list = cci.readCustomerFile("src/customers.txt");
+        list = cci.readCustomerFile("src/customersCorrupt.txt");
         assert(list.size()==14);
         assert(list.size()!=5);
         assertEquals(list.get(2).getSocSecNr(), "8512021234");
