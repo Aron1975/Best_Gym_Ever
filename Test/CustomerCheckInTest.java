@@ -4,6 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CustomerCheckInTest {
 
-    CustomerCheckIn cci = new CustomerCheckIn();
+    CustomerCheckIn cci = new CustomerCheckIn(true);
     List<Customer> list = new ArrayList<>();
     Customer c1 = new Customer("Alhambra Aromes", "7703021234", "2023-07-01");
     Customer c2 = new Customer("Chamade Coriola", "8512021234", "2018-03-12");
@@ -37,10 +41,9 @@ class CustomerCheckInTest {
 
     @Test
     void readReceptionistInputTest() {
-        String input = "blablabla";
-        String output = cci.readReceptionistInput(true, input);
+        String output = cci.readReceptionistInput();
         assertEquals(output, "Test");
-        assertNotEquals(output, " ");
+        assertNotEquals(output, "");
     }
 
     @Test
@@ -83,16 +86,36 @@ class CustomerCheckInTest {
 
     @Test
     void getDateTest() {
-        String dateNow = LocalDate.now().toString();
+        String dateNow = (LocalDate.now()).toString();
         assert(cci.getDate().equals(dateNow));
     }
 
     @Test
-    void printPermission(){
-
+    void printPermissionTest(){
+        list.add(c1);
+        list.add(c2);
+        list.add(c3);
+        int customerIndex = 2;
+        assertEquals(cci.printPermission(list, customerIndex), "Föredetta kund.");
+        customerIndex = 0;
+        assertEquals(cci.printPermission(list, customerIndex), "Nuvarande kund.");
+        assertEquals(cci.printPermission(list, -1), "Obehörig.");
     }
 
     @Test
-    void writeToPtFileTest() {
+    void writeToPTFileTest() throws IOException{
+        String testFilename = "src/testFile.txt";
+        String line = "";
+        Path path = Paths.get(testFilename);
+        String dateNow = (LocalDate.now()).toString();
+        cci.writeToPTFile(testFilename, c1);
+        assert(Files.exists(path));
+        Scanner sc = new Scanner(new FileReader(testFilename));
+        assert(sc.hasNextLine());
+        while(sc.hasNextLine()) {
+            line = sc.nextLine();
+        }
+        String stringToCompare = "Alhambra Aromes, 7703021234, " + dateNow;
+        assertEquals(line,stringToCompare);
     }
 }

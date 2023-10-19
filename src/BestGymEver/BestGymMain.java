@@ -5,7 +5,7 @@ import java.util.List;
 
 public class BestGymMain {
 
-    List<Customer> customerList = new ArrayList<>();
+    //List<Customer> customerList = new ArrayList<>();
 
     public BestGymMain(){
 /*
@@ -15,9 +15,10 @@ public class BestGymMain {
     }
 
     public static void main(String[] args) {
+        //String filename = "src/customers.txt";
         CustomerCheckIn cci = new CustomerCheckIn();
-        String filename = "src/customers.txt";
-        List<Customer> customerList= new ArrayList<>();
+
+       /* List<Customer> customerList= new ArrayList<>();
         customerList = cci.readCustomerFile(filename);
         String input = cci.readReceptionistInput(false, null);
         String input1 = "Maja Andersson";
@@ -32,6 +33,6 @@ public class BestGymMain {
             System.out.println("Behörig");
         }else{
             System.out.println("Behörighet har gått ut.");
-        }
+        }*/
     }
 }
