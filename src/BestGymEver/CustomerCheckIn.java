@@ -19,51 +19,68 @@ public class CustomerCheckIn {
     }
 
     public CustomerCheckIn() {
-        String filename = "src/customers.txt";
+        String filename = "src/customer.txt";
         //String filename = "src/customersCorrupt.txt";
         List<Customer> customerList = readCustomerFile(filename);
+        boolean runProgram = true;
 
-        while(true) {
+        while (runProgram) {
             String input = readReceptionistInput();
             int customerIndex = checkIfCustomerExists(customerList, input);
             printPermission(customerList, customerIndex);
 
-            String[] options = {"JA", "NEJ"};
-            int selection = JOptionPane.showOptionDialog(null, "Vill du ha info om en annan besökare?", "Best Gym Ever",
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
-            if (selection == 1) {
-                break;
-            }
+            runProgram = continueRun();
+
         }
+    }
+
+    private boolean continueRun() {
+        String[] options = {"JA", "NEJ"};
+        int selection = JOptionPane.showOptionDialog(null, "Vill du ha info om en annan besökare?", "Best Gym Ever",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[1]);
+        if (selection == 1) {
+            return false;
+        }
+        return true;
     }
 
 
     public List<Customer> readCustomerFile(String filename) {
         String line, secNr, name, date = "";
         String[] split;
-
+        boolean readOK = true;
         List<Customer> list = new ArrayList<>();
         try (Scanner sc = new Scanner(new FileReader(filename))) {
             while (sc.hasNextLine()) {
                 line = sc.nextLine();
                 split = line.split(",", 2);
                 secNr = split[0].trim();
+                checkDataFromFile(secNr, 1);
                 name = split[1].trim();
                 if (sc.hasNextLine()) {
                     date = sc.nextLine();
                 }
-                Customer c = new Customer(name, secNr, date);
-                list = addCustomerToList(list, c);
+                if(checkDataFromFile(secNr, 1) && checkDataFromFile(name, 2) && checkDataFromFile(date, 3)) {
+                    Customer c = new Customer(name, secNr, date);
+                    list = addCustomerToList(list, c);
+                }else{
+                    readOK = false;
+                }
             }
         } catch (FileNotFoundException e) {
             if (isTest) {
                 e.printStackTrace();
+                return list;
             } else {
                 JOptionPane.showMessageDialog(null, "Filen " + filename + " existerar inte.");
                 System.exit(0);
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        if(!isTest && !readOK){
+            JOptionPane.showMessageDialog(null, "Filen " + filename + " är korrupt, kundlistan är bristfällig.");
+
         }
         return list;
     }
@@ -102,6 +119,26 @@ public class CustomerCheckIn {
         return false;
     }
 
+    //Check if social number(1) is 10digits, name(2) is letters and spaces and date(3) is yyyy-mm-dd, if correct return true.
+    public boolean checkDataFromFile(String s, int type) {
+        if (type == 1) {
+            if ((s.matches("[0-9]+")) && (s.length() == 10)) {
+                return true;
+            }
+        }
+        if (type == 2) {
+            if (s.matches("[A-Za-z ÅåÄäÖö]+")){
+                return true;
+            }
+        }
+        if (type == 3){
+            if(s.matches("[0-9][0-9][0-9][0-9][-][0-9][0-9][-][0-9][0-9]")){
+                return true;
+            }
+        }
+        return false;
+    }
+
     //Return place in List if exists, -1 if customer doesn't exist.
     public int checkIfCustomerExists(List<Customer> l, String s) {
 
@@ -126,7 +163,7 @@ public class CustomerCheckIn {
             LocalDate dateNow = LocalDate.now();
             Period p = Period.between(dateBefore, dateNow);
             if (p.getYears() == 0) {
-                writeToPTFile(ptFilename,c);  //???? Ska jag ha den här???? <<--------------
+                writeToPTFile(ptFilename, c);  //???? Ska jag ha den här???? <<--------------
                 return true;
             }
         } catch (NumberFormatException e) {
@@ -136,6 +173,7 @@ public class CustomerCheckIn {
         }
         return false;
     }
+
     public String printPermission(List<Customer> list, int index) {
         if (index == -1) {
             if (!isTest) {
@@ -143,15 +181,15 @@ public class CustomerCheckIn {
             } else {
                 return "Obehörig.";
             }
-        }else{
-            if(checkCustomerStatus(list.get(index))){
+        } else {
+            if (checkCustomerStatus(list.get(index))) {
                 if (!isTest) {
                     JOptionPane.showMessageDialog(null, "Nuvarande medlem.");
 
                 } else {
                     return "Nuvarande kund.";
                 }
-            }else{
+            } else {
                 if (!isTest) {
                     JOptionPane.showMessageDialog(null, "Medlemens behörighet har gått ut.");
                 } else {
@@ -168,10 +206,10 @@ public class CustomerCheckIn {
 
     public void writeToPTFile(String filename, Customer c) throws IOException {
         String line1 = c.getName() + ", " + c.getSocSecNr() + ", " + getDate();
-        try(BufferedWriter bw = new BufferedWriter(new FileWriter(filename, true))){
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename, true))) {
             bw.write(line1);
             bw.newLine();
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

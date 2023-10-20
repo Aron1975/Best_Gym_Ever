@@ -25,10 +25,19 @@ class CustomerCheckInTest {
 
     @Test
     void readCustomerFileTest() {
-        list = cci.readCustomerFile("src/customersCorrupt.txt");
+        String existingCorrectFile = "src/customers.txt";
+        String nonExistingFile = "src/custom.txt";
+        String existingCorruptFile = "src/customersCorrupt.txt";
+        list = cci.readCustomerFile(existingCorrectFile);
         assert(list.size()==14);
         assert(list.size()!=5);
         assertEquals(list.get(2).getSocSecNr(), "8512021234");
+        assertNotEquals(list.get(0).getSocSecNr(), "0000000000");
+        list = cci.readCustomerFile(nonExistingFile);
+        assert(list.isEmpty());
+        list = cci.readCustomerFile(existingCorruptFile);
+        assert(list.size()==3);
+        assert(list.size()!=5);
     }
 
     @Test
@@ -61,6 +70,23 @@ class CustomerCheckInTest {
         assert(!cci.checkReceptionistInput(badInput1));
         assert(!cci.checkReceptionistInput(badInput2));
         assert(!cci.checkReceptionistInput(badInput3));
+    }
+
+    @Test
+    void checkDataFromFileTest(){
+
+        String name = "adg";
+        String socNr ="1234567890";
+        String date = "2011-12-13";
+        assert(cci.checkDataFromFile(name, 2));
+        assert(cci.checkDataFromFile(socNr, 1));
+        assert(cci.checkDataFromFile(date, 3));
+        String badName = "adg*24";
+        String badSocNr ="123456890";
+        String badDate = "2011-1213";
+        assert(!cci.checkDataFromFile(badName, 2));
+        assert(!cci.checkDataFromFile(badSocNr, 1));
+        assert(!cci.checkDataFromFile(badDate, 3));
     }
 
     @Test
